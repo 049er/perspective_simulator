@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -27,6 +26,9 @@ class Painter extends CustomPainter {
         PointMode.points, centeredOffsets, paintEasy(Colors.redAccent, 2.5));
 
     canvas.drawLine(Offset(0, centerY), Offset(size.width, centerY),
+        paintEasy(Colors.redAccent, 0.5));
+
+    canvas.drawLine(Offset(centerX, 0), Offset(centerX, size.height),
         paintEasy(Colors.redAccent, 0.5));
   }
 
