@@ -4,7 +4,7 @@ import 'dart:developer' as d;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:perspective_simulator/painter.dart';
-
+// ignore: depend_on_referenced_packages
 import 'package:vector_math/vector_math_64.dart' as vm;
 
 class Simulator extends StatefulWidget {
@@ -26,11 +26,11 @@ class _SimulatorState extends State<Simulator> {
 
   @override
   void initState() {
-    _fileNameController.text = 'tensor_data_p0_00';
-    _perspectiveController.text = '0.001';
+    _fileNameController.text = 'tensor_data_p0_0001';
+    _perspectiveController.text = '0.0001';
     _angleStartController.text = '-85';
     _angleEndController.text = '85';
-    _angleStepController.text = '1';
+    _angleStepController.text = '5';
     super.initState();
   }
 
@@ -180,13 +180,8 @@ class _SimulatorState extends State<Simulator> {
       ),
       width: double.infinity,
       height: MediaQuery.of(context).size.height / 2,
-      child: InteractiveViewer(
-        scaleFactor: 0.1,
-        maxScale: 10,
-        minScale: 4,
-        child: CustomPaint(
-          painter: Painter(offsets: offsetsToDraw),
-        ),
+      child: CustomPaint(
+        painter: Painter(offsets: offsetsToDraw),
       ),
     );
   }
@@ -218,9 +213,14 @@ class _SimulatorState extends State<Simulator> {
       for (double i = start; i <= end; i += step) i,
     ];
 
+    List<double> perspectives = [
+      0.0001,
+      0.0002,
+    ];
+
     for (List<vm.Vector3> size in squareSizes) {
       for (vm.Vector3 position in positions) {
-        //X
+        //X//
         for (double angle in angles) {
           List<Offset> offsets = [];
           for (vm.Vector3 corner in size) {
@@ -235,26 +235,15 @@ class _SimulatorState extends State<Simulator> {
             offsets.add(offset);
           }
 
-          List<Offset> cp = [
-            Offset(
-                offsets[0].dx - offsets[0].dx, offsets[0].dy - offsets[0].dy),
-            Offset(
-                offsets[1].dx - offsets[0].dx, offsets[1].dy - offsets[0].dy),
-            Offset(
-                offsets[2].dx - offsets[0].dx, offsets[2].dy - offsets[0].dy),
-            Offset(
-                offsets[3].dx - offsets[0].dx, offsets[3].dy - offsets[0].dy),
-          ];
-
           String result =
-              '${cp[0].dx},${cp[0].dy},${cp[1].dx},${cp[1].dy},${cp[2].dx},${cp[2].dy},${cp[3].dx},${cp[3].dy},$angle,0,0\n';
+              cornerPointsString(offsets: offsets, angle: angle, axis: 'x');
 
           writeToFile(file, result);
 
           setState(() {
             offsetsToDraw = offsets;
           });
-          await Future.delayed(const Duration(milliseconds: 5));
+          await Future.delayed(const Duration(milliseconds: 50));
         }
 
         //Y
@@ -272,26 +261,15 @@ class _SimulatorState extends State<Simulator> {
             offsets.add(offset);
           }
 
-          List<Offset> cp = [
-            Offset(
-                offsets[0].dx - offsets[0].dx, offsets[0].dy - offsets[0].dy),
-            Offset(
-                offsets[1].dx - offsets[0].dx, offsets[1].dy - offsets[0].dy),
-            Offset(
-                offsets[2].dx - offsets[0].dx, offsets[2].dy - offsets[0].dy),
-            Offset(
-                offsets[3].dx - offsets[0].dx, offsets[3].dy - offsets[0].dy),
-          ];
-
           String result =
-              '${cp[0].dx},${cp[0].dy},${cp[1].dx},${cp[1].dy},${cp[2].dx},${cp[2].dy},${cp[3].dx},${cp[3].dy},0,$angle,0\n';
+              cornerPointsString(offsets: offsets, angle: angle, axis: 'y');
 
           writeToFile(file, result);
 
           setState(() {
             offsetsToDraw = offsets;
           });
-          await Future.delayed(const Duration(milliseconds: 5));
+          await Future.delayed(const Duration(milliseconds: 50));
         }
       }
     }
@@ -331,6 +309,30 @@ class _SimulatorState extends State<Simulator> {
     vm.Vector3(-400, 400, 0),
     vm.Vector3(400, -400, 0),
     vm.Vector3(-400, -400, 0),
+
+    ///
+    vm.Vector3(0, 500, 0),
+    vm.Vector3(500, 0, 0),
+    vm.Vector3(500, 500, 0),
+    vm.Vector3(-500, 500, 0),
+    vm.Vector3(500, -500, 0),
+    vm.Vector3(-500, -500, 0),
+
+    ///
+    vm.Vector3(0, 500, 0),
+    vm.Vector3(500, 0, 0),
+    vm.Vector3(500, 500, 0),
+    vm.Vector3(-500, 500, 0),
+    vm.Vector3(500, -500, 0),
+    vm.Vector3(-500, -500, 0),
+
+    ///
+    vm.Vector3(0, 500, 0),
+    vm.Vector3(500, 0, 0),
+    vm.Vector3(500, 500, 0),
+    vm.Vector3(-500, 500, 0),
+    vm.Vector3(500, -500, 0),
+    vm.Vector3(-500, -500, 0),
   ];
 
   ///List of square Sizes
@@ -347,18 +349,18 @@ class _SimulatorState extends State<Simulator> {
     //   vm.Vector3(150, 150, 0),
     //   vm.Vector3(-150, 150, 0),
     // ],
-    [
-      vm.Vector3(-200, -200, 0),
-      vm.Vector3(200, -200, 0),
-      vm.Vector3(200, 200, 0),
-      vm.Vector3(-200, 200, 0),
-    ],
     // [
-    //   vm.Vector3(-250, -250, 0),
-    //   vm.Vector3(250, -250, 0),
-    //   vm.Vector3(250, 250, 0),
-    //   vm.Vector3(-250, 250, 0),
+    //   vm.Vector3(-200, -200, 0),
+    //   vm.Vector3(200, -200, 0),
+    //   vm.Vector3(200, 200, 0),
+    //   vm.Vector3(-200, 200, 0),
     // ],
+    [
+      vm.Vector3(-250, -250, 0),
+      vm.Vector3(250, -250, 0),
+      vm.Vector3(250, 250, 0),
+      vm.Vector3(-250, 250, 0),
+    ],
     // [
     //   vm.Vector3(-300, -300, 0),
     //   vm.Vector3(300, -300, 0),
@@ -400,6 +402,27 @@ class _SimulatorState extends State<Simulator> {
     vector3.applyProjection(projection);
 
     return Offset(vector3.x, vector3.y);
+  }
+
+  String cornerPointsString({
+    required List<Offset> offsets,
+    required double angle,
+    required String axis,
+  }) {
+    List<Offset> cp = [
+      Offset(offsets[0].dx - offsets[0].dx, offsets[0].dy - offsets[0].dy),
+      Offset(offsets[1].dx - offsets[0].dx, offsets[1].dy - offsets[0].dy),
+      Offset(offsets[2].dx - offsets[0].dx, offsets[2].dy - offsets[0].dy),
+      Offset(offsets[3].dx - offsets[0].dx, offsets[3].dy - offsets[0].dy),
+    ];
+
+    if (axis == 'x') {
+      return '${cp[0].dx.round()},${cp[0].dy.round()},${cp[1].dx.round()},${cp[1].dy.round()},${cp[2].dx.round()},${cp[2].dy.round()},${cp[3].dx.round()},${cp[3].dy.round()},$angle,0,0\n';
+    } else if (axis == 'y') {
+      return '${cp[0].dx.round()},${cp[0].dy.round()},${cp[1].dx.round()},${cp[1].dy.round()},${cp[2].dx.round()},${cp[2].dy.round()},${cp[3].dx.round()},${cp[3].dy.round()},0,$angle,0\n';
+    } else {
+      return '${cp[0].dx.round()},${cp[0].dy.round()},${cp[1].dx.round()},${cp[1].dy.round()},${cp[2].dx.round()},${cp[2].dy.round()},${cp[3].dx.round()},${cp[3].dy.round()},0,0,$angle\n';
+    }
   }
 
   void writeToFile(File data, String result) async {
