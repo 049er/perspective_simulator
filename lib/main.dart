@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:perspective_simulator/simulator.dart';
+import 'package:perspective_simulator/simulator/simualtor.dart';
 import 'package:perspective_simulator/widgets/custom_card.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -17,13 +18,14 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
       ),
       darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          textTheme: const TextTheme(
-            bodyLarge: TextStyle(
-                color: Colors.deepOrange,
-                fontSize: 18,
-                fontWeight: FontWeight.bold),
-          )),
+        brightness: Brightness.dark,
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(
+              color: Colors.deepOrange,
+              fontSize: 18,
+              fontWeight: FontWeight.bold),
+        ),
+      ),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
@@ -40,6 +42,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -49,8 +56,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const <Widget>[
-            CustomCard('Simulator', Simulator(), Icons.grid_3x3,
-                tileColor: Colors.deepOrange),
+            CustomCard(
+              'Simulator',
+              SimulatorV5(),
+              Icons.grid_3x3,
+              tileColor: Colors.deepOrange,
+            ),
           ],
         ),
       ),
