@@ -15,6 +15,8 @@ import 'package:perspective_simulator/simulator/painter.dart';
 import 'package:perspective_simulator/widgets/custom_container.dart';
 import 'package:perspective_simulator/widgets/custom_icon_button.dart';
 import 'package:perspective_simulator/widgets/custom_text_button.dart';
+import 'package:perspective_simulator/widgets/custom_text_field.dart';
+import 'package:perspective_simulator/widgets/custom_triple_text_field.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
 
 class SimulatorV5 extends StatefulWidget {
@@ -925,123 +927,6 @@ class _SimulatorV5State extends State<SimulatorV5> {
     await file.writeAsString(
       result,
       mode: FileMode.append,
-    );
-  }
-}
-
-class CustomTripleTextField extends StatelessWidget {
-  const CustomTripleTextField({
-    Key? key,
-    required this.controller1,
-    required this.onChanged1,
-    required this.label1,
-    required this.suffix1,
-    required this.controller2,
-    required this.onChanged2,
-    required this.label2,
-    required this.suffix2,
-    required this.controller3,
-    required this.onChanged3,
-    required this.label3,
-    required this.suffix3,
-  }) : super(key: key);
-
-  final String label1;
-  final TextEditingController controller1;
-  final void Function(String value) onChanged1;
-  final String? suffix1;
-  final String label2;
-  final TextEditingController controller2;
-  final void Function(String value) onChanged2;
-  final String? suffix2;
-  final String label3;
-  final TextEditingController controller3;
-  final void Function(String value) onChanged3;
-  final String? suffix3;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          Text(label1),
-          Flexible(
-            child: TextField(
-              controller: controller1,
-              onChanged: onChanged1,
-              style: const TextStyle(color: Colors.deepOrange),
-            ),
-          ),
-          Visibility(
-            visible: suffix1 != null,
-            child: Text(suffix1 ?? ''),
-          ),
-          const VerticalDivider(),
-          Text(label2),
-          Flexible(
-            child: TextField(
-              controller: controller2,
-              onChanged: onChanged2,
-              style: const TextStyle(color: Colors.deepOrange),
-            ),
-          ),
-          Visibility(
-            visible: suffix2 != null,
-            child: Text(suffix2 ?? ''),
-          ),
-          const VerticalDivider(),
-          Text(label3),
-          Flexible(
-            child: TextField(
-              controller: controller3,
-              onChanged: onChanged3,
-              style: const TextStyle(color: Colors.deepOrange),
-            ),
-          ),
-          Visibility(
-            visible: suffix3 != null,
-            child: Text(suffix3 ?? ''),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({
-    Key? key,
-    required this.label,
-    this.suffix,
-    required this.controller,
-    required this.onChanged,
-  }) : super(key: key);
-
-  final String label;
-  final TextEditingController controller;
-  final String? suffix;
-  final void Function(String value) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        Flexible(
-          child: TextField(
-            controller: controller,
-            onChanged: onChanged,
-            style: const TextStyle(color: Colors.deepOrange),
-          ),
-        ),
-        Visibility(
-          visible: suffix != null,
-          child: Text(suffix ?? ''),
-        ),
-      ],
     );
   }
 }
