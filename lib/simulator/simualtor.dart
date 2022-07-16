@@ -632,6 +632,7 @@ class _SimulatorV5State extends State<SimulatorV5> {
       //5. Calculate the step to be used for this zTranslation.
       double translationStep = zTranslation / sTranslationScale;
 
+      //6. Update UI
       setState(() {
         currentZTranslation = zTranslation;
       });
@@ -642,7 +643,7 @@ class _SimulatorV5State extends State<SimulatorV5> {
           currentXRotation = xRotation;
         });
 
-        //7. Probe the x and y ranges.
+        //i. Probe the x and y ranges.
         double yMax = probeY(
             worldPoints: worldPoints,
             imageHeight: imageHeight,
@@ -662,7 +663,7 @@ class _SimulatorV5State extends State<SimulatorV5> {
         double xMin = -xMax;
         double yMin = -yMax;
 
-        //8. Generate X and Y ranges
+        //ii. Generate X and Y ranges
         List<double> xRange = [
           for (double i = xMin; i <= xMax; i += translationStep) i
         ];
@@ -673,7 +674,7 @@ class _SimulatorV5State extends State<SimulatorV5> {
 
         for (var xTranslation in xRange) {
           for (var yTranslation in yRange) {
-            //9. Clone world points
+            //iii. Clone world points
             List<vm.Vector4> clones = [
               worldPoints[0].clone(),
               worldPoints[1].clone(),
@@ -681,9 +682,9 @@ class _SimulatorV5State extends State<SimulatorV5> {
               worldPoints[3].clone(),
             ];
 
-            //10. Calcualte screen points.
+            //iv. Calcualte screen points.
             List<vm.Vector3> w = clones.map((e) {
-              //11. Dot the extrinsic matrix (R|T) with worldPoint.
+              //v. Dot the extrinsic matrix (R|T) with worldPoint.
               vm.Vector3 point = Matrix3x4(
                       xRotation: xRotation,
                       yRotation: 0,
@@ -693,41 +694,58 @@ class _SimulatorV5State extends State<SimulatorV5> {
                       zTranslation: zTranslation)
                   .dot(e);
 
-              //12. Dot the product with the camera matrix (K).
+              //vi. Dot the product with the camera matrix (K).
               return point.dotOpenCV(cameraMatrix);
             }).toList();
 
-            //13. Chack that the results fall within image frame.
-            if (w[0].x > 0 &&
-                w[0].x < imageWidth &&
-                w[1].x > 0 &&
-                w[1].x < imageWidth &&
-                w[2].x > 0 &&
-                w[2].x < imageWidth &&
-                w[3].x > 0 &&
-                w[3].x < imageWidth &&
-                w[0].y < imageHeight &&
-                w[0].y > 0 &&
-                w[1].y < imageHeight &&
-                w[1].y > 0 &&
-                w[2].y < imageHeight &&
-                w[2].y > 0 &&
-                w[3].y < imageHeight &&
-                w[3].y > 0) {
-              //14. Write results to file.
-              String results =
-                  '${w[0].x.toStringAsFixed(2)}, ${w[0].y.toStringAsFixed(2)},${w[1].x.toStringAsFixed(2)}, ${w[1].y.toStringAsFixed(2)},${w[2].x.toStringAsFixed(2)}, ${w[2].y.toStringAsFixed(2)},${w[3].x.toStringAsFixed(2)}, ${w[3].y.toStringAsFixed(2)},$xRotation,0,0\n';
-              writeToFile(results);
+            vm.Vector3 leftV = w[1] - w[2];
+            vm.Vector3 rightV = w[0] - w[3];
+
+            double top = (w[0] - w[1]).length;
+            double right = (w[1] - w[2]).length;
+            double bot = (w[2] - w[3]).length;
+            double left = (w[3] - w[0]).length;
+
+            double aveX = (top + bot) / 2;
+            double aveY = (left + right) / 2;
+
+            double aspect = aveX / aveY;
+
+            if (leftV.y < 0 || rightV.y < 0) {
+              if (aspect >= 0.25 || aspect <= 3) {
+                //vii. Chack that the results fall within image frame.
+                if (w[0].x > 0 &&
+                    w[0].x < imageWidth &&
+                    w[1].x > 0 &&
+                    w[1].x < imageWidth &&
+                    w[2].x > 0 &&
+                    w[2].x < imageWidth &&
+                    w[3].x > 0 &&
+                    w[3].x < imageWidth &&
+                    w[0].y < imageHeight &&
+                    w[0].y > 0 &&
+                    w[1].y < imageHeight &&
+                    w[1].y > 0 &&
+                    w[2].y < imageHeight &&
+                    w[2].y > 0 &&
+                    w[3].y < imageHeight &&
+                    w[3].y > 0) {
+                  //viii. Write results to file.
+                  String results =
+                      '${w[0].x.toStringAsFixed(2)}, ${w[0].y.toStringAsFixed(2)},${w[1].x.toStringAsFixed(2)}, ${w[1].y.toStringAsFixed(2)},${w[2].x.toStringAsFixed(2)}, ${w[2].y.toStringAsFixed(2)},${w[3].x.toStringAsFixed(2)}, ${w[3].y.toStringAsFixed(2)},$xRotation,0,0\n';
+                  writeToFile(results);
+
+                  //ix. Add the sqaure so it can be drawn.
+                  _addSqaure(Square(w));
+
+                  //x. Wait a little bit.
+                  await Future.delayed(Duration(milliseconds: sSpeed));
+
+                  //xi. Clear canvas.
+                  _clearSqaures();
+                }
+              }
             }
-
-            //15. Add the sqaure so it can be drawn.
-            _addSqaure(Square(w));
-
-            //16. Wait a little bit.
-            await Future.delayed(Duration(milliseconds: sSpeed));
-
-            //17. Clear canvas.
-            _clearSqaures();
 
             if (stopSimulation == true) {
               break;
@@ -803,37 +821,55 @@ class _SimulatorV5State extends State<SimulatorV5> {
               return point.dotOpenCV(cameraMatrix);
             }).toList();
 
-            //13. Chack that the results fall within image frame.
-            if (w[0].x > 0 &&
-                w[0].x < imageWidth &&
-                w[1].x > 0 &&
-                w[1].x < imageWidth &&
-                w[2].x > 0 &&
-                w[2].x < imageWidth &&
-                w[3].x > 0 &&
-                w[3].x < imageWidth &&
-                w[0].y < imageHeight &&
-                w[0].y > 0 &&
-                w[1].y < imageHeight &&
-                w[1].y > 0 &&
-                w[2].y < imageHeight &&
-                w[2].y > 0 &&
-                w[3].y < imageHeight &&
-                w[3].y > 0) {
-              //14. Write results to file.
-              String results =
-                  '${w[0].x.toStringAsFixed(2)}, ${w[0].y.toStringAsFixed(2)},${w[1].x.toStringAsFixed(2)}, ${w[1].y.toStringAsFixed(2)},${w[2].x.toStringAsFixed(2)}, ${w[2].y.toStringAsFixed(2)},${w[3].x.toStringAsFixed(2)}, ${w[3].y.toStringAsFixed(2)},0,$yRotation,0\n';
-              writeToFile(results);
+            // 'TL', 'TR', 'BR', 'BL'
+            vm.Vector3 topV = w[0] - w[1];
+            vm.Vector3 botV = w[3] - w[2];
+
+            double top = (w[0] - w[1]).length;
+            double right = (w[1] - w[2]).length;
+            double bot = (w[2] - w[3]).length;
+            double left = (w[3] - w[0]).length;
+
+            double aveX = (top + bot) / 2;
+            double aveY = (left + right) / 2;
+
+            double aspect = aveX / aveY;
+
+            if (topV.x < 0 || botV.x < 0) {
+              if (aspect >= 0.25 || aspect <= 3) {
+                //13. Chack that the results fall within image frame.
+                if (w[0].x > 0 &&
+                    w[0].x < imageWidth &&
+                    w[1].x > 0 &&
+                    w[1].x < imageWidth &&
+                    w[2].x > 0 &&
+                    w[2].x < imageWidth &&
+                    w[3].x > 0 &&
+                    w[3].x < imageWidth &&
+                    w[0].y < imageHeight &&
+                    w[0].y > 0 &&
+                    w[1].y < imageHeight &&
+                    w[1].y > 0 &&
+                    w[2].y < imageHeight &&
+                    w[2].y > 0 &&
+                    w[3].y < imageHeight &&
+                    w[3].y > 0) {
+                  //14. Write results to file.
+                  String results =
+                      '${w[0].x.toStringAsFixed(2)}, ${w[0].y.toStringAsFixed(2)},${w[1].x.toStringAsFixed(2)}, ${w[1].y.toStringAsFixed(2)},${w[2].x.toStringAsFixed(2)}, ${w[2].y.toStringAsFixed(2)},${w[3].x.toStringAsFixed(2)}, ${w[3].y.toStringAsFixed(2)},0,$yRotation,0\n';
+                  writeToFile(results);
+
+                  //15. Add the sqaure so it can be drawn.
+                  _addSqaure(Square(w));
+
+                  //16. Wait a little bit.
+                  await Future.delayed(Duration(milliseconds: sSpeed));
+
+                  //17. Clear canvas.
+                  _clearSqaures();
+                }
+              }
             }
-
-            //15. Add the sqaure so it can be drawn.
-            _addSqaure(Square(w));
-
-            //16. Wait a little bit.
-            await Future.delayed(Duration(milliseconds: sSpeed));
-
-            //17. Clear canvas.
-            _clearSqaures();
 
             if (stopSimulation == true) {
               break;

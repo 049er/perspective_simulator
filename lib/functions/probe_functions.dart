@@ -15,7 +15,7 @@ double probeY({
 }) {
   double yMax = 0;
   //4. Probe for the Y range start.
-  for (var i = 0; i < 10000; i++) {
+  for (var i = 0; i < 100000; i++) {
     //5. Calculate the current position.
     double value = i * 1;
 
@@ -55,7 +55,7 @@ double probeX({
 }) {
   double xMax = 0;
   //4. Probe for the Y range start.
-  for (var i = 0; i < 100; i++) {
+  for (var i = 0; i < 100000; i++) {
     //5. Calculate the current position.
     double value = i * 1;
 
